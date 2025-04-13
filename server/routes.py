@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 import os
 from datetime import datetime
 import logging
-from .database import get_all_images, save_image, create_message, get_all_messages
+from .database import get_all_images, save_image
 from functools import wraps
 
 # Configure logging
@@ -91,31 +91,4 @@ def upload_image():
             return jsonify({'error': 'File type not allowed. Please upload PNG, JPG, or GIF files.'}), 400
     except Exception as e:
         logger.error(f"Error in upload_image: {str(e)}")
-        return jsonify({'error': f'Server error: {str(e)}'}), 500
-
-# Message routes
-@api.route('/messages', methods=['POST'])
-@handle_db_errors
-def create_message_route():
-    data = request.get_json()
-    if not data or 'content' not in data:
-        return jsonify({"error": "Content is required"}), 400
-        
-    content = data['content']
-    if not content.strip():
-        return jsonify({"error": "Message cannot be empty"}), 400
-    
-    try:
-        message = create_message(content)
-        return jsonify(message), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@api.route('/messages', methods=['GET'])
-@handle_db_errors
-def get_messages_route():
-    try:
-        messages = get_all_messages()
-        return jsonify(messages)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500 
+        return jsonify({'error': f'Server error: {str(e)}'}), 500 

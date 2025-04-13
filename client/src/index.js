@@ -6,7 +6,6 @@ import './index.css';
 const API_BASE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : '';
 
 function App() {
-  const [message, setMessage] = useState('');
   const [uploadedImages, setUploadedImages] = useState([]);
   const fileInputRef = useRef(null);
 
@@ -87,25 +86,6 @@ function App() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/messages`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ content: message }),
-      });
-      if (response.ok) {
-        setMessage('');
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
-  };
-
   return (
     <div className="App">
       <h1>Ruby Board</h1>
@@ -148,18 +128,6 @@ function App() {
             )}
           </div>
         </div>
-      </div>
-
-      <div className="message-section">
-        <form onSubmit={handleSubmit} className="message-form">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your message..."
-          />
-          <button type="submit">Send Message</button>
-        </form>
       </div>
     </div>
   );

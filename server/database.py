@@ -23,7 +23,6 @@ def init_db():
         
         # Drop existing tables if they exist
         cur.execute('DROP TABLE IF EXISTS images CASCADE')
-        cur.execute('DROP TABLE IF EXISTS messages CASCADE')
         
         # Create images table
         cur.execute('''
@@ -34,16 +33,6 @@ def init_db():
             )
         ''')
         logger.info("Created images table")
-        
-        # Create messages table
-        cur.execute('''
-            CREATE TABLE messages (
-                id SERIAL PRIMARY KEY,
-                content TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        logger.info("Created messages table")
         
         conn.commit()
         logger.info("Database initialized successfully")
