@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 import logging
 from dotenv import load_dotenv
+from flask_session import Session
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -16,9 +17,24 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 app = Flask(__name__, static_url_path='', static_folder=UPLOAD_FOLDER)
+
+# Configure session
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to False for development
+app.config['SESSION_COOKIE_HTTPONLY'] = False  # Allow JavaScript to access the cookie
+app.config['SESSION_COOKIE_DOMAIN'] = None  # Allow cookies to be sent to any domain in development
+Session(app)
+
+# Configure CORS
 CORS(app, resources={
-    r"/api/*": {"origins": ["http://localhost:3001", "http://localhost:3002"]},
-    r"/uploads/*": {"origins": ["http://localhost:3001", "http://localhost:3002"]}
+    r"/*": {
+        "origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
+        "supports_credentials": True,
+        "allow_headers": ["Content-Type", "Authorization"],
+        "expose_headers": ["Content-Type", "Authorization"]
+    }
 })
 
 # Import and register the blueprint after app creation
