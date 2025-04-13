@@ -198,10 +198,16 @@ body {
   display: block;
 }
 
+.message-section {
+  margin-top: 30px;
+  width: 100%;
+}
+
 .message-form {
-  margin-top: 20px;
   display: flex;
   gap: 10px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .message-form input {

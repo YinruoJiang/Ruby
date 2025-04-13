@@ -7,22 +7,11 @@ const API_BASE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:
 
 function App() {
   const [message, setMessage] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [lastRecordingUrl, setLastRecordingUrl] = useState(null);
   const [uploadedImages, setUploadedImages] = useState([]);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const timerRef = useRef(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetchImages();
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
   }, []);
 
   async function fetchImages() {
@@ -98,74 +87,6 @@ function App() {
     }
   };
 
-  const saveAudioFile = async (audioBlob) => {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const fileName = `recording-${timestamp}.wav`;
-    
-    try {
-      const formData = new FormData();
-      formData.append('audio', audioBlob, fileName);
-      
-      const response = await fetch(`${API_BASE_URL}/api/save-audio`, {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (response.ok) {
-        console.log('Audio file saved successfully');
-      } else {
-        console.error('Failed to save audio file');
-      }
-    } catch (error) {
-      console.error('Error saving audio file:', error);
-    }
-  };
-
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
-      };
-
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setLastRecordingUrl(audioUrl);
-        saveAudioFile(audioBlob);
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-      setRecordingTime(0);
-
-      timerRef.current = setInterval(() => {
-        setRecordingTime((prevTime) => {
-          if (prevTime >= 10) {
-            stopRecording();
-            return 10;
-          }
-          return prevTime + 1;
-        });
-      }, 1000);
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
-      setIsRecording(false);
-      clearInterval(timerRef.current);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -229,35 +150,17 @@ function App() {
         </div>
       </div>
 
-      <div className="recorder-container">
-        <button
-          onClick={isRecording ? stopRecording : startRecording}
-          className={`record-button ${isRecording ? 'recording' : ''}`}
-        >
-          {isRecording ? 'Stop Recording' : 'Start Recording'}
-        </button>
-        {isRecording && (
-          <div className="recording-timer">
-            Recording: {recordingTime}s / 10s
-          </div>
-        )}
-        {lastRecordingUrl && (
-          <div className="audio-player">
-            <audio controls src={lastRecordingUrl} />
-          </div>
-        )}
+      <div className="message-section">
+        <form onSubmit={handleSubmit} className="message-form">
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type your message..."
+          />
+          <button type="submit">Send Message</button>
+        </form>
       </div>
-
-      <form onSubmit={handleSubmit} className="message-form">
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type your message..."
-          required
-        />
-        <button type="submit">Send</button>
-      </form>
     </div>
   );
 }
