@@ -1,9 +1,9 @@
 import React, { useRef } from 'react';
 import './ImageUploader.css';
 
-const API_BASE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : '';
+const IMAGE_SERVICE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:3003' : '';
 
-function ImageUploader({ onImageUploaded }) {
+const ImageUploader = ({ onUpload }) => {
   const fileInputRef = useRef(null);
 
   const handleImageUpload = async (e) => {
@@ -19,26 +19,56 @@ function ImageUploader({ onImageUploaded }) {
     }
 
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('file', file);
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Please login to upload images');
+      return;
+    }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/upload-image`, {
+      const response = await fetch(`${IMAGE_SERVICE_URL}/upload`, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
       });
 
       const data = await response.json();
       if (response.ok) {
-        fileInputRef.current.value = ''; // Reset file input
-        if (onImageUploaded) {
-          onImageUploaded(data);
+        if (onUpload) {
+          onUpload(data);
         }
       } else {
-        alert(`Upload failed: ${data.error || 'Unknown error'}`);
+        alert(`Upload failed: ${data.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error during upload:', error);
       alert('Failed to upload image. Please try again.');
+    }
+  };
+
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Call the parent's onUpload function with the event
+    if (onUpload) {
+      onUpload(e);
     }
   };
 
@@ -47,18 +77,15 @@ function ImageUploader({ onImageUploaded }) {
       <input
         type="file"
         ref={fileInputRef}
-        onChange={handleImageUpload}
+        onChange={handleFileChange}
         accept="image/*"
         style={{ display: 'none' }}
       />
-      <button
-        className="upload-button"
-        onClick={() => fileInputRef.current.click()}
-      >
+      <button onClick={handleButtonClick} className="upload-button">
         Upload Image
       </button>
     </div>
   );
-}
+};
 
 export default ImageUploader; 

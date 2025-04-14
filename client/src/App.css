@@ -3,26 +3,50 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #f5f5f5;
 }
 
 .App-header {
   background-color: #282c34;
   padding: 20px;
   color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.App-header h1 {
+h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.auth-container {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.content {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  margin: 0 auto;
 }
 
 .user-info {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .logout-button {
@@ -32,11 +56,73 @@
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.3s;
 }
 
 .logout-button:hover {
   background-color: #c82333;
+}
+
+.error-message {
+  color: #dc3545;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f8d7da;
+  border-radius: 4px;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.image-item {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%; /* Creates a square aspect ratio */
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.image-item img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image covers the entire container while maintaining aspect ratio */
+}
+
+.no-images {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  color: #666;
+}
+
+.image-uploader {
+  margin: 2rem 0;
+  width: 100%;
+  max-width: 400px;
+}
+
+.upload-button {
+  width: 100%;
+  padding: 15px;
+  font-size: 1.1rem;
+  background-color: #4CAF50;
+  color: white;
+}
+
+.upload-button:hover {
+  background-color: #45a049;
 }
 
 main {
@@ -57,49 +143,8 @@ main {
   margin-bottom: 2rem;
 }
 
-.upload-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s;
-}
-
-.upload-button:hover {
-  background-color: #0056b3;
-}
-
 .image-gallery {
   width: 100%;
-}
-
-.image-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-  padding: 1rem 0;
-}
-
-.image-item {
-  width: 100%;
-  aspect-ratio: 4/3;
-  position: relative;
-}
-
-.image-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-}
-
-.image-item img:hover {
-  transform: scale(1.02);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

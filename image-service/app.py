@@ -6,6 +6,7 @@ import logging
 from datetime import datetime
 from functools import wraps
 from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -21,19 +22,23 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
-# Configure CORS
+# Configure CORS with more permissive settings for development
 CORS(app, resources={
     r"/*": {
-        "origins": ["http://localhost:3000"],
-        "supports_credentials": True,
+        "origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:3004"],
+        "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
-        "expose_headers": ["Content-Type", "Authorization"]
+        "expose_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
     }
 })
 
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        if request.method == 'OPTIONS':
+            return '', 200
+            
         token = request.headers.get('Authorization')
         if not token:
             return jsonify({'message': 'Token is missing'}), 401
@@ -51,7 +56,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/upload', methods=['POST'])
+@app.route('/upload', methods=['POST', 'OPTIONS'])
 @token_required
 def upload_file(current_user):
     if 'file' not in request.files:
@@ -70,7 +75,7 @@ def upload_file(current_user):
     
     return jsonify({'message': 'File type not allowed'}), 400
 
-@app.route('/images', methods=['GET'])
+@app.route('/images', methods=['GET', 'OPTIONS'])
 @token_required
 def get_images(current_user):
     try:

@@ -1,23 +1,18 @@
 import React, { useState } from 'react';
 import './LoginForm.css';
 
-function LoginForm({ onLogin, onRegister, error }) {
+const LoginForm = ({ onLogin, error }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isRegistering) {
-      onRegister(username, password);
-    } else {
-      onLogin(username, password);
-    }
+    onLogin(username, password);
   };
 
   return (
     <div className="login-form">
-      <h2>{isRegistering ? 'Register' : 'Login'}</h2>
+      <h2>Login</h2>
       {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -40,20 +35,10 @@ function LoginForm({ onLogin, onRegister, error }) {
             required
           />
         </div>
-        <button type="submit" className="submit-button">
-          {isRegistering ? 'Register' : 'Login'}
-        </button>
+        <button type="submit">Login</button>
       </form>
-      <button
-        className="toggle-button"
-        onClick={() => setIsRegistering(!isRegistering)}
-      >
-        {isRegistering
-          ? 'Already have an account? Login'
-          : "Don't have an account? Register"}
-      </button>
     </div>
   );
-}
+};
 
 export default LoginForm; 
