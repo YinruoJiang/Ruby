@@ -90,7 +90,11 @@ function App() {
         const data = await response.json();
         setError(''); // Clear any previous errors
         // Add the new image to the current images array
-        setImages(prevImages => [...prevImages, { filename: data.filename }]);
+        setImages(prevImages => [...prevImages, {
+          filename: data.filename,
+          original_filename: data.original_filename,
+          upload_date: new Date().toISOString()
+        }]);
         e.target.value = ''; // Reset file input
       } else {
         const errorData = await response.json();
@@ -98,6 +102,27 @@ function App() {
       }
     } catch (err) {
       setError('Failed to upload image');
+    }
+  };
+
+  const handleDeleteImage = async (filename) => {
+    try {
+      const response = await fetch(`http://localhost:3003/images/${filename}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        // Remove the image from the state
+        setImages(prevImages => prevImages.filter(img => img.filename !== filename));
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to delete image');
+      }
+    } catch (err) {
+      setError('Failed to delete image');
     }
   };
 
@@ -122,7 +147,17 @@ function App() {
           {images && images.length > 0 ? (
             images.map((image, index) => (
               <div key={index} className="image-item">
-                <img src={`http://localhost:3003/uploads/${image.filename}`} alt={`Uploaded ${index + 1}`} />
+                <img src={`http://localhost:3003/uploads/${image.filename}`} alt={image.original_filename} />
+                <div className="image-info">
+                  <span className="image-name">{image.original_filename}</span>
+                  <span className="image-date">{new Date(image.upload_date).toLocaleDateString()}</span>
+                  <button 
+                    className="delete-button"
+                    onClick={() => handleDeleteImage(image.filename)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))
           ) : (
