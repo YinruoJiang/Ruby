@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import ImageUploader from './components/ImageUploader';
 import Login from './components/Login';
@@ -9,13 +9,7 @@ function App() {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (token) {
-      verifyToken();
-    }
-  }, [token]);
-
-  const verifyToken = async () => {
+  const verifyToken = useCallback(async () => {
     try {
       const response = await fetch('http://localhost:3002/verify', {
         headers: {
@@ -32,7 +26,13 @@ function App() {
     } catch (err) {
       handleLogout();
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      verifyToken();
+    }
+  }, [token, verifyToken]);
 
   const handleLogin = (newToken) => {
     setToken(newToken);
@@ -67,40 +67,11 @@ function App() {
     }
   };
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) {
-      setError('No file selected');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await fetch('http://localhost:3003/upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setError(''); // Clear any previous errors
-        // Add the new image to the current images array
-        setImages(prevImages => [...prevImages, {
-          filename: data.filename,
-          original_filename: data.original_filename,
-          upload_date: new Date().toISOString()
-        }]);
-        e.target.value = ''; // Reset file input
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Failed to upload image');
-      }
-    } catch (err) {
+  const handleImageUpload = async (data) => {
+    if (data && data.filename) {
+      setImages(prevImages => [...prevImages, data]);
+      setError('');
+    } else {
       setError('Failed to upload image');
     }
   };

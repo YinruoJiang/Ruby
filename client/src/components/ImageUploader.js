@@ -6,8 +6,7 @@ const IMAGE_SERVICE_URL = process.env.NODE_ENV === 'development' ? 'http://local
 const ImageUploader = ({ onUpload }) => {
   const fileInputRef = useRef(null);
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+  const handleImageUpload = async (file) => {
     if (!file) {
       return;
     }
@@ -56,19 +55,8 @@ const ImageUploader = ({ onUpload }) => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (!file) {
-      return;
-    }
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
-      return;
-    }
-
-    // Call the parent's onUpload function with the event
-    if (onUpload) {
-      onUpload(e);
+    if (file) {
+      handleImageUpload(file);
     }
   };
 
